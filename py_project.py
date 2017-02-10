@@ -3,6 +3,39 @@ import time
 AUTHOR = "Ondrej Zapletal"
 
 
+def gen_func_prot(name, params="",ind=0):
+    func_text = ""
+
+    func_text += indentation(ind) + "def %s(%s):\n" % (name, params)
+
+    return func_text
+
+
+def gen_method_prot(name, ind=1, params=None, mod=None):
+    method_text = ""
+    param_text = "self"
+
+    if mod == 'c':
+        method_text += indentation(ind) + '@classmethod\n'
+        param_text = "cls"
+
+    if params:
+        param_text += ", %s:\n" % (params)
+
+    method_text += indentation(ind) + "def %s(%s):\n" % (name, param_text)
+    return method_text
+
+
+def gen_doc(text='TODO: Docstring', ind=0, single=True):
+    doc_text = ""
+    doc_text += indentation(ind) + '""" %s """\n' % text
+
+    if not single:
+        doc_text += '\n'
+
+    return doc_text
+
+
 def gen_stamp():
     return ("# -*- coding: utf-8 -*-\n" +
             "# Author: %s\n" % (AUTHOR) +
@@ -10,55 +43,68 @@ def gen_stamp():
             "# Description:\n\n")
 
 
-def gen_main():
-    return (gen_fun("main") + "\n" + sp(4) + gen_doc('TODO: main function description.') + "\n" +
-        'if __name__ == "__main__":\n' + sp(4) + 'main()')
-
-
-def gen_fun(name, params=""):
-    return "def %s(%s):\n" % (name, params)
-
-def gen_met(name, params=None):
-    if params:
-        return "def %s(self, %s):\n" % (name, params)
-    else:
-        return "def %s(self):\n" % (name)
-
-def gen_doc(text='TODO: Docstring'):
-    return '""" %s """\n' % text
-
 def gen_class(name, inherit=None):
     if inherit:
-        return "class %s(%s):\n" % (name, inherit)
+        return "class %s(%s):\n\n" % (name, inherit)
     else:
-        return "class %s(object):\n" % (name)
+        return "class %s(object):\n\n" % (name)
 
-def gen_impr(name):
+
+def gen_import(name):
     return 'import %s\n' % name
 
-def gen_from(name, what='*'):
+
+def gen_import_from(name, what='*'):
     return 'from %s import %s\n\n' % (name, what)
+
 
 def gen_tests(project):
     return (
         gen_doc('Unit tests for %s application.' % project) +
 
-        gen_impr("unittest") + gen_from(project) +
-        gen_class("MainTest", "unittest.TestCae") + sp(4) + gen_doc() + sp(4) +
+        gen_import("unittest") +
+        gen_import_from(project) +
 
-        '@classmethod\n' + sp(4) + gen_fun("setUp","cls") + sp(8) + gen_doc("Test Set Up") +
-        sp(8) + 'pass\n\n' + sp(4) + '@classmethod\n' + sp(4) + gen_fun("tearDown", "cls") +
-        sp(8) + gen_doc('Test Clean Up') + sp(8) + 'pass\n\n' + sp(4) + gen_met('test_%s' % project) +
-        sp(8) + gen_doc() + sp(8) + 'pass\n')
+        gen_class("MainTest", "unittest.TestCase") +
+        gen_doc(ind=1, single=False) +
+
+        gen_method_prot("setUp", mod='c') +
+        gen_doc("Test Set Up", ind=2) +
+        gen_plc_holder(ind=2) +
+
+        gen_method_prot("tearDown", mod='c') +
+        gen_doc('Test Clean Up', ind=2) +
+        gen_plc_holder(ind=2) +
+
+        gen_method_prot('test_%s' % project) +
+        gen_doc(ind=2) +
+        gen_plc_holder(ind=2))
+
+
+def gen_plc_holder(ind):
+    return indentation(ind) + 'pass\n\n'
+
+
+def gen_main():
+    return (
+        gen_func_prot("main") +
+        gen_doc('TODO: main function description.', ind=1, single=False) +
+        'if __name__ == "__main__":\n' +
+        sp(4) + 'main()')
 
 
 def gen_project(project_name):
-    return (gen_stamp() + '""" %s application. """\n\n\n' % (project_name) +
+    return (gen_stamp() +
+            '""" TODO: Script docstring. """\n\n' +
             gen_main())
 
 
 def sp(num):
     return num*" "
+
+
+def indentation(num):
+    return num*sp(4)
 
 
 def main():
@@ -71,6 +117,7 @@ def main():
             test_file.write(gen_tests(project_name))
     else:
         sys.exit()
+
 
 if __name__ == "__main__":
     main()
