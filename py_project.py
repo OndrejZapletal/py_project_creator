@@ -4,6 +4,7 @@ AUTHOR = "Ondrej Zapletal"
 
 
 def gen_func_prot(name, params="",ind=0):
+    """ Function returns properly indeted code """
     func_text = ""
 
     func_text += indentation(ind) + "def %s(%s):\n" % (name, params)
@@ -28,7 +29,7 @@ def gen_method_prot(name, ind=1, params=None, mod=None):
 
 def gen_doc(text='TODO: Docstring', ind=0, single=True):
     doc_text = ""
-    doc_text += indentation(ind) + '""" %s """\n' % text
+    doc_text += indentation(ind) + '"""%s"""\n' % text
 
     if not single:
         doc_text += '\n'
@@ -37,11 +38,10 @@ def gen_doc(text='TODO: Docstring', ind=0, single=True):
 
 
 def gen_stamp():
-    return ("# -*- coding: utf-8 -*-\n" +
+    return ("#!/usr/bin/env python3\n" +
+            "# -*- coding: utf-8 -*-\n" +
             "# Author: %s\n" % (AUTHOR) +
-            "# Date: %s\n" % (time.strftime("%d/%m/%Y")) +
-            "# Description:\n\n")
-
+            "# Date: %s\n\n" % (time.strftime("%d/%m/%Y")))
 
 def gen_class(name, inherit=None):
     if inherit:
@@ -59,26 +59,21 @@ def gen_import_from(name, what='*'):
 
 
 def gen_tests(project):
-    return (
-        gen_doc('Unit tests for %s application.' % project) +
-
-        gen_import("unittest") +
-        gen_import_from(project) +
-
-        gen_class("MainTest", "unittest.TestCase") +
-        gen_doc(ind=1, single=False) +
-
-        gen_method_prot("setUp", mod='c') +
-        gen_doc("Test Set Up", ind=2) +
-        gen_plc_holder(ind=2) +
-
-        gen_method_prot("tearDown", mod='c') +
-        gen_doc('Test Clean Up', ind=2) +
-        gen_plc_holder(ind=2) +
-
-        gen_method_prot('test_%s' % project) +
-        gen_doc(ind=2) +
-        gen_plc_holder(ind=2))
+    return (gen_stamp() +
+            gen_doc('Unit tests for %s application.' % project) +
+            gen_import("unittest") +
+            gen_import_from(project) +
+            gen_class("MainTest", "unittest.TestCase") +
+            gen_doc(ind=1, single=False) +
+            gen_method_prot("setUp", mod='c') +
+            gen_doc("Test Set Up", ind=2) +
+            gen_plc_holder(ind=2) +
+            gen_method_prot("tearDown", mod='c') +
+            gen_doc('Test Clean Up', ind=2) +
+            gen_plc_holder(ind=2) +
+            gen_method_prot('test_%s' % project) +
+            gen_doc(ind=2) +
+            gen_plc_holder(ind=2))
 
 
 def gen_plc_holder(ind):
@@ -86,16 +81,15 @@ def gen_plc_holder(ind):
 
 
 def gen_main():
-    return (
-        gen_func_prot("main") +
-        gen_doc('TODO: main function description.', ind=1, single=False) +
-        'if __name__ == "__main__":\n' +
-        sp(4) + 'main()')
+    return (gen_func_prot("main") +
+            gen_doc('TODO: main function description.', ind=1, single=False) +
+            'if __name__ == "__main__":\n' +
+            sp(4) + 'main()')
 
 
 def gen_project(project_name):
     return (gen_stamp() +
-            '""" TODO: Script docstring. """\n\n' +
+            gen_doc("TODO: Script docstring.", single=False) +
             gen_main())
 
 
