@@ -1,9 +1,10 @@
 import sys
 import time
+
 AUTHOR = "Ondrej Zapletal"
 
 
-def gen_func_prot(name, params="",ind=0):
+def gen_func_prot(name, params="", ind=0):
     """ Function returns properly indeted code """
     func_text = ""
 
@@ -42,6 +43,7 @@ def gen_stamp():
             "# -*- coding: utf-8 -*-\n" +
             "# Author: %s\n" % (AUTHOR) +
             "# Date: %s\n\n" % (time.strftime("%d/%m/%Y")))
+
 
 def gen_class(name, inherit=None):
     if inherit:
@@ -82,7 +84,8 @@ def gen_plc_holder(ind):
 
 def gen_main():
     return (gen_func_prot("main") +
-            gen_doc('TODO: main function description.', ind=1, single=False) +
+            gen_doc('TODO: main function description.', ind=1) +
+            gen_plc_holder(ind=1) +
             'if __name__ == "__main__":\n' +
             sp(4) + 'main()')
 
@@ -108,7 +111,7 @@ def main():
         with open("%s.py" % project_name, 'w') as script_file:
             script_file.write(gen_project(project_name))
         with open("%s_test.py" % project_name, 'w') as test_file:
-            test_file.write(gen_tests(project_name))
+            test_file.write(gen_tests(project_name)[:-1])
     else:
         sys.exit()
 
